@@ -9,7 +9,7 @@ target_url = settings.mozcrash
 other_urls = [settings.backtrace_url]
 
 class CrashDiverter:
-    def copy_post_remote(req, resp, resource, params):
+    def copy_post_remote(req, resp, resource):
         for url in other_urls:
             ans = requests.request(method='POST', url=url, files=resp.context.files, params=req.params)
 
