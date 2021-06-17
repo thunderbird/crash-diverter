@@ -5,4 +5,4 @@ mozcrash = 'https://crash-reports.mozilla.com/submit'
 backtrace_token = ''
 
 # Submission URL for Backtrace
-backtrace_url = 'https://submit.backtrace.io/thunderbird/' + backtrace_token + 'minidump'
+backtrace_url = 'https://submit.backtrace.io/thunderbird/' + backtrace_token + '/minidump'
