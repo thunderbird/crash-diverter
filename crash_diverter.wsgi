@@ -1,4 +1,5 @@
 import falcon
+import json
 import requests
 import settings
 from wsgiref.simple_server import make_server
@@ -10,8 +11,23 @@ other_urls = [settings.backtrace_url]
 
 class CrashDiverter:
     def copy_post_remote(req, resp, resource):
+        def extract_values():
+            data = json.loads(resp.context.files['extra'][1])
+            env = json.loads(data['TelemetryEnvironment'])
+
+            # Get useful bits out of TelemetryEnvironment
+            data['os_name'] = env['system']['os']['name']
+            data['os_version'] = env['system']['os']['version']
+            # Delete unwanted attributes.
+            for key in settings.skip_attributes:
+                data.pop(key, None)
+            return data
+
+        data = extract_values()
+        if resp.text:
+            data['crashid'] = resp.text.split('=')[1]
         for url in other_urls:
-            ans = requests.request(method='POST', url=url, files=resp.context.files, params=req.params)
+            ans = requests.request(method='POST', url=url, data=data, files=resp.context.files, params=req.params)
 
     @falcon.after(copy_post_remote)
     def on_post(self, req, resp):
