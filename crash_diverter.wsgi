@@ -42,11 +42,11 @@ class CrashDiverter:
         resp.text = ans.text
 
 
-app = falcon.App()
+application = falcon.App()
 
-app.add_route('/submit', CrashDiverter())
+application.add_route('/submit', CrashDiverter())
 
 if __name__ == '__main__':
-    with make_server('', 8000, app) as httpd:
+    with make_server('', 8000, application) as httpd:
         print('Serving on port 8000...')
         httpd.serve_forever()
