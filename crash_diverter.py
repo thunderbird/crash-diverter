@@ -13,11 +13,12 @@ class CrashDiverter:
     def copy_post_remote(req, resp, resource):
         def extract_values():
             data = json.loads(resp.context.files['extra'][1])
-            env = json.loads(data['TelemetryEnvironment'])
+            if data.get('TelemetryEnvironment', None):
+                env = json.loads(data['TelemetryEnvironment'])
+                # Get useful bits out of TelemetryEnvironment
+                data['os_name'] = env['system']['os']['name']
+                data['os_version'] = env['system']['os']['version']
 
-            # Get useful bits out of TelemetryEnvironment
-            data['os_name'] = env['system']['os']['name']
-            data['os_version'] = env['system']['os']['version']
             # Delete unwanted attributes.
             for key in settings.skip_attributes:
                 data.pop(key, None)
