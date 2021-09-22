@@ -43,9 +43,14 @@ class CrashDiverter:
         resp.text = ans.text
 
 
+class CrashReports:
+    def on_get(self, req, resp, uuid):
+        raise falcon.HTTPFound(settings.mozreportview+uuid)
+
 application = falcon.App()
 
 application.add_route('/submit', CrashDiverter())
+application.add_route('/report/{uuid}', CrashReports())
 
 if __name__ == '__main__':
     with make_server('', 8000, application) as httpd:

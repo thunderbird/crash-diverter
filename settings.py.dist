@@ -1,6 +1,9 @@
 # URL for Mozilla crash report service
 mozcrash = 'https://crash-reports.mozilla.com/submit'
 
+# URL for Mozilla crash report view page
+mozreportview = 'https://crash-stats.mozilla.org/report/index/'
+
 # Auth token for Backtrace
 backtrace_token = ''
 
