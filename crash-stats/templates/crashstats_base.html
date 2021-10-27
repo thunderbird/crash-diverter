@@ -1,0 +1,60 @@
+{% from "macros/pagination.html" import pagination %}
+<!DOCTYPE html>
+<html lang="en-US" class="production">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block page_title %}Crash Data for {{ product.name }}{% endblock %}</title>
+
+    {% block summary_tags %}
+      <meta property="og:type" content="website">
+      <meta property="og:site_name" content="Mozilla Crash Stats">
+
+      {% block summary_page_tags %}
+        <meta property="og:title" content="Mozilla Crash Stats">
+        <meta property="og:description" content="Mozilla Crash Stats site for viewing and searching crash reports.">
+        <meta name="description" content="Mozilla Crash Stats site for viewing and searching crash reports.">
+      {% endblock %}
+    {% endblock %}
+
+    {% block site_css %}
+      {% stylesheet 'crashstats_base' %}
+      {# {% stylesheet 'fontawesome' %} #}
+    {% endblock %}
+  </head>
+
+  <body>
+    <div class="page-header">
+      {% include "header_title.html" %}
+      <form id="simple_search" method="get" action="" data-no-csrf>
+        <label for="q" class="visually-hidden">Search</label>
+        <input type="text" id="q" name="query" placeholder="Find Crash ID or Signature">
+        <input type="submit" class="hidden">
+      </form>
+    </div>
+
+    <h1>Product Navigation</h1>
+
+    <div class="version-nav">
+      {% block product_nav_filter %}
+      {% endblock %}
+      <div class="nav-links">
+        <a href="">Documentation</a>
+        |
+        <a href="">File a bug</a>
+      </div>
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <div id="footer" class="page-footer">
+      {% include "footer_nav.html" %}
+
+      <br class="clear" />
+    </div>
+{#
+    {% block site_js %}
+      {% javascript 'crashstats_base' %}
+    {% endblock %}
+#}
+  </body>
+</html>

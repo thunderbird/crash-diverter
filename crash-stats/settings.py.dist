@@ -1,0 +1,14 @@
+# Access token for Backtrace Morgue API.
+morgue_token=''
+
+# URL to query API.
+api_url = 'https://thunderbird.sp.backtrace.io/api/query'
+
+buildhub_url = 'https://buildhub.moz.tools/?q=20210613211442'
+
+# List of data fields to pull from Backtrace.
+report_fields = [
+    "Add-ons", "buildid", "callstack", "callstack.functions",
+    "CrashTime", "InstallTime", "MozCrashReason", "os_name",
+    "os_version", "uptime", "version"
+]
