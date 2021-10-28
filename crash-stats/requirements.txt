@@ -1,2 +1,6 @@
 flask
 flask-assets
+humanfriendly
+isodate
+jsmin
+markupsafe
