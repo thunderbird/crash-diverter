@@ -146,7 +146,7 @@
                   <td>
                     {{ report.buildid }}
                     <span class="humanized">({{ report.buildid }})</span>
-                      <a href="{{ buildhub_url }}" class="sig-overview" title="Buildhub data">Buildhub data</a>
+                      <a href="{{ settings.BUILDHUB_URL }}?{{ make_query_string(**{'q': report.buildid, 'channel[0]': report.ReleaseChannel}) }}" class="sig-overview" title="Buildhub data">Buildhub data</a>
                   </td>
                 </tr>
 
