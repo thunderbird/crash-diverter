@@ -1,4 +1,3 @@
-{% from "macros/pagination.html" import pagination %}
 <!DOCTYPE html>
 <html lang="en-US" class="production">
   <head>
@@ -17,8 +16,9 @@
     {% endblock %}
 
     {% block site_css %}
-      {% stylesheet 'crashstats_base' %}
-      {# {% stylesheet 'fontawesome' %} #}
+      {% assets 'crashstats_base' %}
+        <link href="{{ ASSET_URL }}" rel="stylesheet" type="text/css" />
+      {% endassets %}
     {% endblock %}
   </head>
 
@@ -51,10 +51,10 @@
 
       <br class="clear" />
     </div>
-{#
     {% block site_js %}
-      {% javascript 'crashstats_base' %}
+      {% assets 'base_js' %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+      {% endassets %}
     {% endblock %}
-#}
   </body>
 </html>

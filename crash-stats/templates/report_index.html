@@ -2,27 +2,22 @@
 
 {% block summary_page_tags %}
   <meta property="og:title" content="{{ report.uuid }} [@{{ report.signature }}]">
-  <meta property="og:url" content="{{ request.build_absolute_uri() }}">
+  <meta property="og:url" content="">
   <meta property="og:description" content="In {{ report.product }} {{ report.version }} ({{ report.release_channel }}) {{ report.build }}">
 {% endblock %}
 
 {% block site_css %}
-  {{ super() }}
-  {% stylesheet 'jquery_ui' %}
-  {% stylesheet 'tablesorter' %}
-  {% stylesheet 'jsonview' %}
-  {% stylesheet 'report_index' %}
-  {% stylesheet 'bugzilla' %}
+{{ super() }}
+<link href="{{ url_for('static', filename='css/jsonview.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ url_for('static', filename='css/jquery-ui.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ url_for('static', filename='css/tablesorter.min.css') }}" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block site_js %}
-  {{ super() }}
-  {% javascript 'jquery_ui' %}
-  {% javascript 'tablesorter' %}
-  {% javascript 'bugzilla' %}
-  {% javascript 'correlation' %}
-  {% javascript 'jsonview' %}
-  {% javascript 'report_index' %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('static', filename='js/jsonview.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-tablesorter.min.js') }}"></script>
 {% endblock %}
 
 {% block page_title %}[@ {{ report.signature }}] - {{ report.product }} {{ report.version }} Crash Report - Report ID: {{ report.uuid }}{% endblock %}
@@ -39,23 +34,12 @@
       <h2>{{ report.product }} {{ report.version }} Crash Report [@ {{ report.signature }} ]</h2>
     </div>
 
-    <div class="protected-info">
-      {% if request.user.has_perm('crashstats.view_pii') %}
-        <img src="{{ static('img/3rdparty/silk/exclamation.png') }}" alt="protected" title="Protected Data" />
-        You are seeing public and protected data.
-      {% else %}
-        You are seeing public data only.
-        See <a href="{{ url('documentation:protected_data_access') }}">protected data access documentation</a> for more
-        information.
-      {% endif %}
-    </div>
-
     <div class="panel">
       <div class="body">
         {# Header #}
 
         <div id="sumo-link">
-          <a href="https://support.mozilla.org/search?{{ make_query_string(q=report.signature) }}" title="Find more answers at support.mozilla.org!">Search Mozilla Support for this signature</a>
+          <a href="" title="Find more answers at support.mozilla.org!">Search Mozilla Support for this signature</a>
           <a href="https://developer.mozilla.org/en-US/docs/Understanding_crash_reports" title="MDN documentation about crash reports">How to read this crash report</a>
         </div>
         <div id="report-header-details">
@@ -77,25 +61,11 @@
               <a href="#bugzilla" class="ui-tabs-anchor"><span>Bugzilla</span></a>
             </li>
             <li class="ui-state-default ui-corner-top">
-              <a href="#modules" class="ui-tabs-anchor"><span>Modules</span></a>
-            </li>
-            <li class="ui-state-default ui-corner-top">
-              <a href="#rawdump" class="ui-tabs-anchor"><span>Raw Data and Minidumps</span></a>
-            </li>
-            <li class="ui-state-default ui-corner-top">
               <a href="#extensions" class="ui-tabs-anchor"><span>Extensions</span></a>
             </li>
             <li class="ui-state-default ui-corner-top">
               <a href="#telemetryenvironment" class="ui-tabs-anchor"><span>Telemetry Environment</span></a>
             </li>
-            <li class="ui-state-default ui-corner-top">
-              <a href="#correlation" class="ui-tabs-anchor"><span>Correlations</span></a>
-            </li>
-            {% if request.user.has_perm('crashstats.reprocess_crashes') %}
-              <li class="ui-state-default ui-corner-top">
-                <a href="#reprocess" class="ui-tabs-anchor"><span>Reprocess</span></a>
-              </li>
-            {% endif %}
           </ul>
 
           <div id="details" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
@@ -104,19 +74,18 @@
 
                 {# Crash Annotations #}
 
-                <tr title="{{ fields_desc['processed_crash.signature'] }}">
+                <tr title="{{ fields_desc['signature'] }}">
                   <th scope="row">Signature</th>
                   <td>
                     {{ report.signature }}
-                    <a href="{{ url('signature:signature_report') }}?{{ make_query_string(product=report.product, signature=report.signature) }}" class="sig-overview" title="View more reports of this type">More Reports</a>
-                    <a href="{{ url('supersearch:search') }}?{{ make_query_string(product=report.product, signature='=' + report.signature) }}" class="sig-search" title="Search for more reports of this type">Search</a>
+                    <a href="" class="sig-overview" title="View more reports of this type">More Reports</a>
                   </td>
                 </tr>
-                <tr title="{{ fields_desc['processed_crash.uuid'] }}">
+                <tr title="{{ fields_desc['uuid'] }}">
                   <th scope="row">UUID</th>
                   <td>{{ report.uuid }}</td>
                 </tr>
-                <tr title="{{ fields_desc['processed_crash.date_processed'] }}">
+                <tr title="{{ fields_desc['date_processed'] }}">
                   <th scope="row">Date Processed</th>
                   <td>
                     {% if report.date_processed %}
@@ -127,46 +96,46 @@
 
                 {# Times #}
 
-                <tr title="{{ fields_desc['processed_crash.uptime'] }}">
+                <tr title="{{ fields_desc['uptime'] }}">
                   <th scope="row">Uptime</th>
                   <td>
-                    {{ show_duration(report.get('uptime')) }}
+                    {{ report.get('uptime') }}
                   </td>
                 </tr>
                 {% if report.last_crash %}
-                  <tr title="{{ fields_desc['processed_crash.last_crash'] }}">
+                  <tr title="{{ fields_desc['SecondsSinceLastCrash'] }}">
                     <th scope="row">Last Crash</th>
                     <td>
-                      {{ show_duration(report.get('last_crash'), 'seconds before submission') }}
+                      {{ report.get('SecondsSinceLastCrash') }}
                     </td>
                   </tr>
                 {% endif %}
                 {% if report.install_age %}
-                  <tr title="{{ fields_desc['processed_crash.install_age'] }}">
+                  <tr title="{{ fields_desc['install_age'] }}">
                     <th scope="row">Install Age</th>
                     <td>
-                      {{ show_duration(report.get('install_age'), 'seconds since version was first installed') }}
+                      {{ report.get('install_age') }}
                     </td>
                   </tr>
                 {% endif %}
-                <tr title="{{ fields_desc['raw_crash.InstallTime'] }}">
+                <tr title="{{ fields_desc['InstallTime'] }}">
                   <th scope="row">Install Time</th>
                   <td>
-                    {% if raw.InstallTime %}
-                      {{ raw.InstallTime | timestamp_to_date }}
+                    {% if report.InstallTime %}
+                      {{ report.InstallTime | timestamp_to_date }}
                     {% endif %}
                   </td>
                 </tr>
 
                 {# Product #}
 
-                <tr title="{{ fields_desc['processed_crash.product'] }}">
+                <tr title="{{ fields_desc['product'] }}">
                   <th scope="row">Product</th>
                   <td>{{ report.product }}</td>
                 </tr>
-                <tr title="{{ fields_desc['processed_crash.release_channel'] }}">
+                <tr title="{{ fields_desc['ReleaseChannel'] }}">
                   <th scope="row">Release Channel</th>
-                  <td>{{ report.release_channel }}</td>
+                  <td>{{ report.ReleaseChannel }}</td>
                 </tr>
                 <tr title="{{ fields_desc['processed_crash.version'] }}">
                   <th scope="row">Version</th>
@@ -175,455 +144,153 @@
                 <tr title="{{ fields_desc['processed_crash.build'] }}">
                   <th scope="row">Build ID</th>
                   <td>
-                    {{ report.build }}
-                    <span class="humanized">({{ report.build | buildid_to_date }})</span>
-                    {% if product_details.in_buildhub %}
+                    {{ report.buildid }}
+                    <span class="humanized">({{ report.buildid }})</span>
                       <a href="{{ buildhub_url }}" class="sig-overview" title="Buildhub data">Buildhub data</a>
-                    {% endif %}
                   </td>
                 </tr>
-                {% if report.product == "Fenix" %}
-                  <tr title="{{ fields_desc['processed_crash.application_build_id'] }}">
-                    <th scope="row">Application Build ID</th>
-                    <td>
-                      {{ report.application_build_id }}
-                    </td>
-                  </tr>
-                {% endif %}
 
                 {# OS #}
 
-                <tr title="{{ fields_desc['processed_crash.os_pretty_version'] }}">
+                <tr title="{{ fields_desc['os_name'] }}">
                   <th scope="row">OS</th>
-                  <td>{{ report.os_pretty_version or report.os_name }}</td>
+                  <td>{{ report.os_name }}</td>
                 </tr>
                 <tr title="{{ fields_desc['processed_crash.os_version'] }}">
                   <th scope="row">OS Version</th>
                   <td>{{ report.os_version }}</td>
                 </tr>
-                {% if raw.Android_Version %}
-                  <tr title="{{ fields_desc['raw_crash.Android_Version'] }}">
-                    <th scope="row">Android Version</th>
-                    <td>
-                      <pre>{{ raw.Android_Version }}</pre>
-                    </td>
-                  </tr>
-                {% endif %}
                 {% if report.windows_error_reporting == "1" %}
-                  <tr title="{{ fields_desc['processed_crash.windows_error_reporting'] }}">
+                  <tr title="{{ fields_desc['WindowsErrorReporting'] }}">
                     <th scope="row">Windows Error Reporting</th>
                     <td>
-                      <pre>{{ report.windows_error_reporting }}</pre>
+                      <pre>{{ report.WindowsErrorReporting }}</pre>
                     </td>
                   </tr>
                 {% endif %}
 
                 {# Hardware #}
 
-                <tr title="{{ fields_desc['processed_crash.cpu_arch'] }}">
+                <tr title="{{ fields_desc['cpu_arch'] }}">
                   <th scope="row">Build Architecture</th>
                   <td>{{ report.cpu_arch }}</td>
                 </tr>
-                <tr title="{{ fields_desc['processed_crash.cpu_info'] }}">
+                <tr title="{{ fields_desc['cpu_info'] }}">
                   <th scope="row">CPU Info</th>
                   <td>
                     {% if report.cpu_info %}
-                      {% if is_dangerous_cpu(report.cpu_arch, report.cpu_info) %}
-                        <img src="{{ static('img/3rdparty/silk/exclamation.png') }}" alt="warning" title="Possible AMD CPU bug related crash report" />
-                      {% endif %}
                       {{ report.cpu_info }}
                     {% endif %}
                   </td>
                 </tr>
-                <tr title="{{ fields_desc['processed_crash.json_dump.system_info.cpu_count'] }}">
+                <tr title="{{ fields_desc['cpu_count'] }}">
                   <th scope="row">CPU Count</th>
                   <td>
-                    {{ report.cpu_count }}
+                    {{ report['cpu.count'] }}
                   </td>
                 </tr>
-                {% if raw.Android_Manufacturer %}
-                  <tr title="{{ fields_desc['raw_crash.Android_Manufacturer'] }}">
-                    <th scope="row">Android Manufacturer</th>
-                    <td>
-                      <pre>{{ raw.Android_Manufacturer }}</pre>
-                    </td>
-                  </tr>
-                {% endif %}
-                {% if raw.Android_Model %}
-                  <tr title="{{ fields_desc['raw_crash.Android_Model'] }}">
-                    <th scope="row">Android Model</th>
-                    <td>
-                      <pre>{{ raw.Android_Model }}</pre>
-                    </td>
-                  </tr>
-                {% endif %}
-                {% if raw.Android_CPU_ABI%}
-                  <tr title="{{ fields_desc['raw_crash.Android_CPU_ABI'] }}">
-                    <th scope="row">Android CPU ABI</th>
-                    <td>
-                      <pre>{{ raw.Android_CPU_ABI}}</pre>
-                    </td>
-                  </tr>
-                {% endif %}
-                <tr title="{{ fields_desc['raw_crash.AdapterVendorID'] }}">
+                <tr title="{{ fields_desc['AdapterVendorID'] }}">
                   <th scope="row">Adapter Vendor ID</th>
                   <td>
-                    {% if raw.AdapterVendorName %}
-                      <pre>{{ raw.AdapterVendorName }} ({{ raw.AdapterVendorID }})</pre>
+                    {% if report.AdapterVendorName %}
+                      <pre>{{ report.AdapterVendorName }} ({{ report.AdapterVendorID }})</pre>
                     {% else %}
-                      <pre>{{ raw.AdapterVendorID }}</pre>
+                      <pre>{{ report.AdapterVendorID }}</pre>
                     {% endif %}
                   </td>
                 </tr>
                 <tr title="{{ fields_desc['raw_crash.AdapterDeviceID'] }}">
                   <th scope="row">Adapter Device ID</th>
                   <td>
-                    {% if raw.AdapterDeviceName %}
-                      <pre>{{ raw.AdapterDeviceName }} ({{ raw.AdapterDeviceID }})</pre>
+                    {% if report.AdapterDeviceName %}
+                      <pre>{{ report.AdapterDeviceName }} ({{ report.AdapterDeviceID }})</pre>
                     {% else %}
-                      <pre>{{ raw.AdapterDeviceID }}</pre>
+                      <pre>{{ report.AdapterDeviceID }}</pre>
                     {% endif %}
                   </td>
                 </tr>
 
                 {# Crash circumstances #}
 
-                {% if raw.StartupCrash %}
+                {% if report.StartupCrash %}
                   <tr title="{{ fields_desc['raw_crash.StartupCrash'] }}">
                     <th scope="row">Startup Crash</th>
                     <td>
-                      <pre>{{ booleanish_to_boolean(raw.StartupCrash) }}</pre>
+                      <pre>{{ booleanish_to_boolean(report.StartupCrash) }}</pre>
                     </td>
                   </tr>
                 {% endif %}
-                <tr title="{{ fields_desc['processed_crash.process_type'] }}">
-                  <th scope="row">Process Type</th>
-                  <td>
-                    {{ report.process_type or "parent" }}
-                    {% if report.process_type == "content" and request.user.has_perm("crashstats.view_pii") -%}
-                      ({{ raw.RemoteType or 'web' }}) - {{ protected_warning() }}
-                    {%- endif %}
-                    {% if report.process_type == "plugin" -%}
-                      ({{ report.PluginName or "No name" }}, ver: {{ report.PluginVersion or "Unknown" }}, filename: {{ report.PluginFilename or "" }})
-                    {%- endif %}
-                  </td>
-                </tr>
-                {% if request.user.has_perm('crashstats.view_pii') %}
-                  {% if report.moz_crash_reason_raw %}
-                    <tr title="{{ fields_desc['processed_crash.moz_crash_reason_raw'] }}">
-                      <th scope="row">MOZ_CRASH Reason (Raw)</th>
-                      <td>{{ report.moz_crash_reason_raw }} - {{ protected_warning() }}</td>
-                    </tr>
-                  {% endif %}
-                {% elif report.moz_crash_reason %}
-                  <tr title="{{ fields_desc['processed_crash.moz_crash_reason'] }}">
-                    <th scope="row">MOZ_CRASH Reason (Sanitized)</th>
-                    <td><pre>{{ report.moz_crash_reason }}</pre></td>
+                <tr title="{{ fields_desc['MozCrashReason'] }}">
+                    <th scope="row">MOZ_CRASH Reason </th>
+                    <td><pre>{{ report.MozCrashReason }}</pre></td>
                   </tr>
-                {% endif %}
                 <tr title="{{ fields_desc['processed_crash.reason'] }}">
                   <th scope="row">Crash Reason</th>
-                  <td>{{ report.reason }}</td>
+                  <td>{{ report.classifiers }}</td>
                 </tr>
-                <tr title="{{ fields_desc['processed_crash.address'] }}">
+                <tr title="{{ fields_desc['address'] }}">
                   <th scope="row">Crash Address</th>
                   <td>{{ report.address }}</td>
                 </tr>
-                {% if crashing_thread is not none and parsed_dump.threads[crashing_thread].last_error_value %}
-                  <tr title="Last error value">
-                    <th scope="row">Last Error Value</th>
-                    <td>{{ parsed_dump.threads[crashing_thread].last_error_value }}</td>
-                  </tr>
-                {% endif %}
-                {% if report.mac_crash_info %}
-                  <tr title="Mac crash info">
-                    <th scope="row">Mac Crash info</th>
-                    <td><pre>{{ report.mac_crash_info }}</pre></td>
-                  </tr>
-                {% endif %}
-                {% if request.user.has_perm('crashstats.view_pii') %}
-                  {% if report.java_stack_trace_raw %}
-                    <tr title="{{ fields_desc['processed_crash.java_stack_trace_raw'] }}">
-                      <th scope="row">Java Stack Trace (Raw)</th>
-                      <td>
-                        <pre>{{ report.java_stack_trace_raw }}</pre>
-                        <div>
-                          {{ protected_warning() }}
-                        </div>
-                      </td>
-                    </tr>
-                  {% endif %}
-                {% else %}
-                  {% if report.java_stack_trace %}
-                    <tr title="{{ fields_desc['processed_crash.java_stack_trace'] }}">
-                      <th scope="row">Java Stack Trace (Redacted)</th>
-                      <td>
-                        <pre>{{ report.java_stack_trace }}</pre>
-                      </td>
-                    </tr>
-                  {% endif %}
-                {% endif %}
-                {% if request.user.has_perm('crashstats.view_exploitability') %}
-                  <tr title="{{ fields_desc['processed_crash.exploitability'] }}">
-                    <th scope="row">Exploitability</th>
-                    <td>
-                      {% if report.exploitability %}
-                        {{ report.exploitability }} - {{ protected_warning() }}
-                      {% endif %}
-                    </td>
-                  </tr>
-                {% endif %}
-
-                {# Personal user info #}
-
-                {% if request.user.has_perm('crashstats.view_pii') %}
-                  <tr title="{{ fields_desc['processed_crash.url'] }}">
-                    <th scope="row">URL</th>
-                    <td>
-                      {% if raw.URL %}
-                        <a href="{{ raw.URL }}" title="{{ raw.URL }}">{{ raw.URL }}</a>
-                      {% endif %}
-                      - {{ protected_warning() }}
-                    </td>
-                  </tr>
-                  <tr title="{{ fields_desc['processed_crash.user_comments'] }}">
-                    <th scope="row">User Comments</th>
-                    <td>
-                      {% if report.user_comments %}
-                        {{ report.user_comments | linebreaks }}
-                      {% endif %}
-                      - {{ protected_warning() }}
-                    </td>
-                  </tr>
-                {% endif %}
 
                 {# Memory usage #}
 
-                {% if raw.TotalVirtualMemory %}
-                  <tr title="{{ fields_desc['raw_crash.TotalVirtualMemory'] }}">
+                {% if report.TotalVirtualMemory %}
+                  <tr title="{{ fields_desc['TotalVirtualMemory'] }}">
                     <th scope="row">Total Virtual Memory</th>
                     <td>
-                      {{ show_filesize(raw.get('TotalVirtualMemory')) }}
+                      {{ show_filesize(report.get('TotalVirtualMemory')) }}
                     </td>
                   </tr>
                 {% endif %}
                 {% if raw.AvailableVirtualMemory %}
-                  <tr title="{{ fields_desc['raw_crash.AvailableVirtualMemory'] }}">
+                  <tr title="{{ fields_desc['AvailableVirtualMemory'] }}">
                     <th scope="row">Available Virtual Memory</th>
                     <td>
-                      {{ show_filesize(raw.get('AvailableVirtualMemory')) }}
+                      {{ show_filesize(report.get('AvailableVirtualMemory')) }}
                     </td>
                   </tr>
                 {% endif %}
                 {% if raw.AvailablePageFile %}
-                  <tr title="{{ fields_desc['raw_crash.AvailablePageFile'] }}">
+                  <tr title="{{ fields_desc['AvailablePageFile'] }}">
                     <th scope="row">Available Page File</th>
                     <td>
-                      {{ show_filesize(raw.get('AvailablePageFile')) }}
+                      {{ show_filesize(report.get('AvailablePageFile')) }}
                     </td>
                   </tr>
                 {% endif %}
                 {% if raw.AvailablePhysicalMemory %}
-                  <tr title="{{ fields_desc['raw_crash.AvailablePhysicalMemory'] }}">
+                  <tr title="{{ fields_desc['AvailablePhysicalMemory'] }}">
                     <th scope="row">Available Physical Memory</th>
                     <td>
-                      {{ show_filesize(raw.get('AvailablePhysicalMemory')) }}
+                      {{ show_filesize(report.get('AvailablePhysicalMemory')) }}
                     </td>
                   </tr>
                 {% endif %}
                 {% if raw.SystemMemoryUsePercentage %}
-                  <tr title="{{ fields_desc['raw_crash.SystemMemoryUsePercentage'] }}">
+                  <tr title="{{ fields_desc['SystemMemoryUsePercentage'] }}">
                     <th scope="row">System Memory Use Percentage</th>
                     <td>
-                      {{ raw.SystemMemoryUsePercentage }}
+                      {{ report.SystemMemoryUsePercentage }}
                     </td>
                   </tr>
                 {% endif %}
                 {% if raw.OOMAllocationSize %}
-                  <tr title="{{ fields_desc['raw_crash.OOMAllocationSize'] }}">
+                  <tr title="{{ fields_desc['OOMAllocationSize'] }}">
                     <th scope="row">OOM Allocation Size</th>
                     <td>
-                      {{ show_filesize(raw.get('OOMAllocationSize')) }}
+                      {{ show_filesize(report.get('OOMAllocationSize')) }}
                     </td>
                   </tr>
-                {% endif %}
-
-                {% if 'phc_kind' in report and request.user.has_perm('crashstats.view_pii') %}
-                  <tr title="{{ fields_desc['processed_crash.phc_kind'] }}">
-                    <th scope="row">PHC Kind</th>
-                    <td>
-                      {{ report.phc_kind }}
-                        - {{ protected_warning() }}
-                    </td>
-                  </tr>
-                  <tr title="{{ fields_desc['processed_crash.phc_usable_size'] }}">
-                    <th scope="row">PHC Usable Size</th>
-                    <td>
-                      {{ report.phc_usable_size }}
-                        - {{ protected_warning() }}
-                    </td>
-                  </tr>
-                  <tr title="{{ fields_desc['processed_crash.phc_base_address'] }}">
-                    <th scope="row">PHC Base Address</th>
-                    <td>
-                      {{ report.phc_base_address }}
-                        - {{ protected_warning() }}
-                    </td>
-                  </tr>
-                  <tr title="{{ fields_desc['processed_crash.phc_alloc_stack'] }}">
-                    <th scope="row">PHC Alloc Stack</th>
-                    <td>
-                      {{ report.phc_alloc_stack }}
-                        - {{ protected_warning() }}
-                    </td>
-                  </tr>
-                  <tr title="{{ fields_desc['processed_crash.phc_free_stack'] }}">
-                    <th scope="row">PHC Free Stack</th>
-                    <td>
-                      {{ report.phc_free_stack }}
-                        - {{ protected_warning() }}
-                    </td>
-                  </tr>
-		            {% endif %}
-
-                {% if 'memory_measures' in report %}
-                  {% if 'explicit' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.explicit'] }}">
-                      <th scope="row">MR: explicit</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.explicit) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'gfx_textures' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.gfx_textures'] }}">
-                      <th scope="row">MR: gfx-textures</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.gfx_textures) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'ghost_windows' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.ghost_windows'] }}">
-                      <th scope="row">MR: ghost-windows</th>
-                      <td>
-                        <pre>{{ report.memory_measures.ghost_windows }}</pre>
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'heap_allocated' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.heap_allocated'] }}">
-                      <th scope="row">MR: heap-allocated</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.heap_allocated) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'heap_overhead' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.heap_overhead'] }}">
-                      <th scope="row">MR: heap-overhead</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.heap_overhead) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'heap_unclassified' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.heap_unclassified'] }}">
-                      <th scope="row">MR: heap-unclassified</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.heap_unclassified) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'host_object_urls' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.host_object_urls'] }}">
-                      <th scope="row">MR: host-object-urls</th>
-                      <td>
-                        <pre>{{ report.memory_measures.host_object_urls }}</pre>
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'images' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.images'] }}">
-                      <th scope="row">MR: images</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.images) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'js_main_runtime' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.js_main_runtime'] }}">
-                      <th scope="row">MR: js-main-runtime</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.js_main_runtime) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'private' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.private'] }}">
-                      <th scope="row">MR: private</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.private) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'resident' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.resident'] }}">
-                      <th scope="row">MR: resident</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.resident) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'resident_unique' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.resident_unique'] }}">
-                      <th scope="row">MR: resident-unique</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.resident_unique) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'system_heap_allocated' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.system_heap_allocated'] }}">
-                      <th scope="row">MR: system-heap-allocated</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.system_heap_allocated) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'top_none_detached' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.top_none_detached'] }}">
-                      <th scope="row">MR: top(none)/detached</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.top_none_detached) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'vsize' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.vsize'] }}">
-                      <th scope="row">MR: vsize</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.vsize) }}
-                      </td>
-                    </tr>
-                  {% endif %}
-                  {% if 'vsize_max_contiguous' in report.memory_measures %}
-                    <tr title="{{ fields_desc['processed_crash.memory_measures.vsize_max_contiguous'] }}">
-                      <th scope="row">MR: vsize-max-contiguous</th>
-                      <td>
-                        {{ show_filesize(report.memory_measures.vsize_max_contiguous) }}
-                      </td>
-                    </tr>
-                  {% endif %}
                 {% endif %}
 
                 {# Miscellaneous #}
 
                 {% if raw.Accessibility %}
-                  <tr title="{{ fields_desc['raw_crash.Accessibility'] }}">
+                  <tr title="{{ fields_desc['Accessibility'] }}">
                     <th scope="row">Accessibility</th>
                     <td>
-                      <pre>{{ raw.Accessibility }}</pre>
+                      <pre>{{ report.Accessibility }}</pre>
                     </td>
                   </tr>
                 {% endif %}
@@ -633,78 +300,8 @@
                     <pre>{% if report.addons_checked %}True{% else %}False{% endif %}</pre>
                   </td>
                 </tr>
-
-                {# Notes #}
-
-                {% if raw.collector_notes %}
-                  <tr title="{{ fields_desc['raw_crash.collector_notes'] }}">
-                    <th scope="row">Collector Notes</th>
-                    <td>
-                      <pre>{{ raw.collector_notes|join("\n") }}</pre>
-                    </td>
-                  </tr>
-                {% endif %}
-                {% if report.app_notes %}
-                  <tr title="{{ fields_desc['processed_crash.app_notes'] }}">
-                    <th scope="row">App Notes</th>
-                    <td>
-                      <pre>{{ report.app_notes }}</pre>
-                    </td>
-                  </tr>
-                {% endif %}
-                {% if report.processor_notes %}
-                  <tr title="{{ fields_desc['processed_crash.processor_notes'] }}">
-                    <th scope="row">Processor Notes</th>
-                    <td>
-                      <pre>{{ report.processor_notes }}</pre>
-                    </td>
-                  </tr>
-                {% endif %}
               </tbody>
             </table>
-
-            {% if java_exception_stacks %}
-              <div id="frames">
-                {% for stacktrace in java_exception_stacks %}
-                  {% set stacktrace = stacktrace.stacktrace %}
-                  <h2>Exception: {{ stacktrace.module }}.{{ stacktrace.type }}</h2>
-
-                  {% if stacktrace.value %}
-                    <h3>
-                      Message: {{ stacktrace.value }}
-                    </h3>
-                    <p>
-                      <img src="{{ static('img/3rdparty/silk/exclamation.png') }}" alt="protected" title="Protected Data" />
-                      Note: Unredacted exception messages are protected data.
-                      <a href="{{ url('documentation:protected_data_access') }}">Protected data policy.</a>
-                    </p>
-                  {% endif %}
-
-                  <table class="data-table">
-                    <thead>
-                      <tr>
-                        <th scope="col">Frame</th>
-                        <th scope="col">Module</th>
-                        <th scope="col">Function</th>
-                        <th scope="col">Source</th>
-                        <th scope="col">In app?</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for frame in stacktrace.frames %}
-                        <tr>
-                          <td>{{ loop.index0 }}</td>
-                          <td>{{ frame.module }}</td>
-                          <td>{{ frame.function }}</td>
-                          <td>{{ frame.filename }}:{{ frame.lineno }}</td>
-                          <td>{{ frame.in_app }}</td>
-                        </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                {% endfor %}
-              </div>
-            {% endif %}
 
             {% if parsed_dump.threads %}
               <div id="frames">
@@ -789,48 +386,6 @@
               </div>
               <!-- /frames -->
             {% endif %}
-
-            {% if request.user.has_perm('crashstats.view_pii') and report.breadcrumbs %}
-              <div id="breadcrumbs">
-                <h2>Breadcrumbs</h2>
-                <p>
-                  {{ protected_warning() }} -
-                  {% if report.breadcrumbs|length > 10 %}
-                    Latest 10 breadcrumbs (out of {{ report.breadcrumbs|length }})
-                  {% else %}
-                    All {{ report.breadcrumbs|length }} breadcrumbs
-                  {% endif %}
-                </p>
-                <table class="data-table breadcrumbs-table">
-                  <thead>
-                    <tr>
-                      <th class="small-col" scope="col">Level</th>
-                      <th class="small-col" scope="col">Type</th>
-                      <th class="small-col" scope="col">Category</th>
-                      <th scope="col">Data</th>
-                      <th class="small-col" scope="col">Timestamp</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for item in report.breadcrumbs[-10:] %}
-                      <tr>
-                        <td>{{ item.level }}</td>
-                        <td>{{ item.type }}</td>
-                        <td>{{ item.category }}</td>
-                        <td>
-                          {% if item.message %}<b>message:</b> {{ item.message }}<br>{% endif %}
-                          {% for key, val in item.data.items()|sort %}
-                            <b>{{ key }}:</b> {{ val }}<br>
-                          {% endfor %}
-                        </td>
-                        <td>{{ item.timestamp }}</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            {% endif %}
-
           </div>
           <!-- /details -->
 
@@ -849,7 +404,7 @@
             <table class="record data-table vertical hardwrapped">
               <tbody>
                 {% for key in public_raw_keys %}
-                  <tr title="{{ fields_desc.get(make_raw_crash_key(key), empty_desc) }}">
+                  <tr title="{{ fields_desc.get(key) }}">
                     <th scope="row">
                       {% if key %}
                         {{ key }}
@@ -862,43 +417,8 @@
                 {% endfor %}
               </tbody>
             </table>
-            <div>
-              <h2>Protected data</h2>
-            </div>
-            <div>
-              These are the crash annotations from the submitted crash report
-              that contain protected data.
-            </div>
-            {% if request.user.has_perm('crashstats.view_pii') %}
-              <div>
-                {{ protected_warning() }}
-              </div>
-              <table class="record data-table vertical hardwrapped">
-                <tbody>
-                  {% for key in protected_raw_keys %}
-                    <tr title="{{ fields_desc.get(make_raw_crash_key(key), empty_desc) }}">
-                      <th scope="row">
-                        {% if key %}
-                          {{ key }}
-                        {% else %}
-                          <i>empty key</i>
-                        {% endif %}
-                      </th>
-                      <td><pre>{{ raw[key] }}</pre></td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            {% else %}
-              <div>
-                You do not have access to protected data for this crash report.
-                See <a href="{{ url('documentation:protected_data_access') }}">protected data access documentation</a> for more
-                information.
-              </div>
-            {% endif %}
-          </div>
           <!-- /#annotations -->
-
+          {#
           <div id="bugzilla" class="ui-tabs-hide">
             <div class="bugreporter">
               <p>
@@ -919,120 +439,11 @@
               </div>
             </div>
           </div>
+          #}
           <!-- /bugzilla -->
 
-          <div id="modules" class="ui-tabs-hide">
-            {% if parsed_dump.modules %}
-              <table class="tablesorter data-table" id="modules-list">
-                <thead>
-                  <tr>
-                    <th scope="col">Filename</th>
-                    <th scope="col">Version</th>
-                    <th scope="col">Debug Identifier</th>
-                    <th scope="col">Debug Filename</th>
-                    {% if parsed_dump.modules_contains_cert_info %}<th scope="col">Signed By</th>{% endif %}
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for module in parsed_dump.modules %}
-                    <tr class="{% if module.missing_symbols %}missingsymbols{% endif %}">
-                      <td>
-                        {% if module.missing_symbols %}
-                          <span class="row-notice" title="missing symbol">&Oslash;</span>
-                        {% endif %}
-                        {% if module.symbol_url %}
-                          <a href="{{ module.symbol_url }}">{{ module.filename }}</a>
-                        {% else %}
-                          {{ module.filename }}
-                        {% endif %}
-                      </td>
-                      <td>{{ module.version }}</td>
-                      <td>{{ module.debug_id }}</td>
-                      <td>{{ module.debug_file }}</td>
-                      {% if parsed_dump.modules_contains_cert_info %}<td>{% if module.cert_subject %}{{ module.cert_subject }}{% endif %}</td>{% endif %}
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            {% endif %}
-          </div>
-          <!-- /modules -->
-
-          <div id="rawdump" class="ui-tabs-hide">
-            <h3>Download crash annotations, processed crash, minidump, and memory report data</h3>
-            {% if request.user.has_perm('crashstats.view_pii') or request.user.has_perm('crashstats.view_rawdump') %}
-              <p>
-                {{ protected_warning() }}
-                Crash annotations and processed crash report contain protected data.
-                Please don't share minidumps with third-parties.
-                See <a href="{{ url('documentation:protected_data_access') }}">Protected data policy</a> for details.
-              </p>
-              {% if request.user.has_perm('crashstats.view_pii') %}
-                <ul class="list-inside list-disc">
-                  {% for name, url in raw_data_urls %}
-                    <li><a href="{{ url }}">{{ name }}</a></li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-              {% if request.user.has_perm('crashstats.view_rawdump') %}
-                {% if raw_dump_urls %}
-                  <p>
-                    Dumps:
-                  </p>
-                  <ul class="list-inside list-disc">
-                    {% for name, url in raw_dump_urls %}
-                      <li><a href="{{ url }}">{{ name }}</a></li>
-                    {% endfor %}
-                  </ul>
-                {% else %}
-                  <p>
-                    No dumps available.
-                  </p>
-                {% endif %}
-              {% endif %}
-              {% if request.user.has_perm('crashstats.view_rawdump') and not raw_dump_urls %}
-                <p>
-                  There are no dumps or memory report to download.
-                </p>
-              {% endif %}
-            {% elif request.user and request.user.is_active %}
-              <p>
-                You do not have access to protected data.
-                You need to be logged in and have access to protected data to see links to crash report data.
-                See <a href="{{ url('documentation:protected_data_access') }}">protected data access documentation</a>
-                for more information.
-              </p>
-            {% else %}
-              <p>
-                You are not logged in.
-                You need to be logged in and have access to protected data to see links to crash report data.
-                See <a href="{{ url('documentation:protected_data_access') }}">protected data access documentation</a>
-                for more information.
-              </p>
-            {% endif %}
-
-            <h3>minidump-stackwalk output</h3>
-            <div>
-              {% if request.user.has_perm('crashstats.view_rawdump') %}
-                {{ protected_warning() }}
-                minidump-stackwalk output contains sensitive and exploitability information.
-              {% else %}
-                You do not have access to protected data so the minidump-stackwalk output is redacted.
-                See <a href="{{ url('documentation:protected_data_access') }}">protected data access documentation</a>
-                for more information.
-              {% endif %}
-            </div>
-            {% if raw_stackwalker_output %}
-              <div id="minidump-stackwalk-json" data-minidumpstackwalk="{{ raw_stackwalker_output }}"></div>
-            {% else %}
-              <p>No dump available.</p>
-            {% endif %}
-
-          </div>
-          <!-- /rawdump -->
-
           <div id="extensions" class="ui-tabs-hide">
-            {% if report.addons %}
+            {% if report['Add-ons'] %}
               <table class="data-table">
                 <thead>
                   <tr>
@@ -1044,13 +455,12 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for addon in report.addons %}
+                  {% for addon in report['Add-ons'] %}
                     <tr>
                       <td>{{ addon.id or "" }}</td>
                       <td>{{ addon.name or "" }}</td>
                       <td>{{ addon.version or "" }}</td>
                       <td>{{ addon.is_system or "" }}</td>
-                      <td>{{ addon.get_signed_state_name() }}</td>
                     </tr>
                   {% endfor %}
                 </tbody>
@@ -1062,63 +472,16 @@
           <!-- /extensions -->
 
           <div id="telemetryenvironment" class="ui-tabs-hide">
-            {% if raw.TelemetryEnvironment %}
-              {# Remember, raw.TelemetryEnvironment is a string.
+            {% if report.TelemetryEnvironment %}
+              {# Remember, report.TelemetryEnvironment is a string.
                  jQuery will automatically convert it to a map upon accessing it.
                  Safe to include because jinja will escape anything in it. #}
-              <div id="telemetryenvironment-json" data-telemetryenvironment="{{ raw.TelemetryEnvironment }}"></div>
+              <div id="telemetryenvironment-json" data-telemetryenvironment="{{ report.TelemetryEnvironment }}"></div>
             {% else %}
               <p>No telemetry environment data available.</p>
             {% endif %}
           </div>
           <!-- /telemetryenvironment -->
-
-          <div id="correlation" class="ui-tabs-hide">
-            <h3></h3>
-            <pre></pre>
-          </div>
-          <!-- /correlation -->
-
-          {% if request.user.has_perm('crashstats.reprocess_crashes') %}
-            <div id="reprocess" class="ui-tabs-hide" data-crash-id="{{ report.uuid }}">
-              <p>
-                Reprocessing will submit the this raw crash back into
-                the processors and the new processed crash will replace
-                the existing one. The raw crash will never change.
-              </p>
-              <form method="post">
-                <button type="submit">Reprocess this crash</button>
-              </form>
-              <div class="waiting hidden">
-                <p>
-                  <img src="{{ static('img/ajax-loader16x16.gif') }}" alt="Waiting...">
-                  <b>Sending crash ID in for reprocessing...</b>
-                </p>
-              </div>
-              <div class="reprocessing-success hidden">
-                <p>
-                  <b>Success!</b>
-                </p>
-                <p>
-                  It's hard to predict when this crash will be precisely reprocessed and the new
-                  processed crash uploaded.
-                </p>
-                <p>
-                  <a href="?refresh=cache">Reload this page without cache</a>
-                </p>
-              </div>
-              <div class="reprocessing-error hidden">
-                <p>
-                  <b>Sadly, it seems we were unable to send this crash in for reprocessing.</b>
-                </p>
-                <p>
-                  HTTP Status code: <code class="status"></code>
-                </p>
-                <pre></pre>
-              </div>
-            </div>
-            <!-- /reprocess -->
-          {% endif %}
         </div>
         <!-- /report-index -->
       </div>
