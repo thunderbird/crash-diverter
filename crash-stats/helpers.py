@@ -23,6 +23,11 @@ def urlencode_obj(thing):
     return res.replace("+", "%20")
 
 
+def parse_isodate(ds):
+    """Return a datetime object from a date string"""
+    return isodate.parse_datetime(ds)
+
+
 def minimum(item1, item2):
     """Returns the minimum of two items"""
     return min(item1, item2)
@@ -440,6 +445,15 @@ def filter_featured_versions(product_versions):
 
 def filter_not_featured_versions(product_versions):
     return [pv for pv in product_versions if not pv["is_featured"]]
+
+
+# Temporary overrides for broken functions.
+def show_duration(seconds, unit="seconds"):
+    return seconds
+
+
+def show_filesize(bytes, unit="bytes"):
+    return bytes
 
 
 jinjafunctions = dict(inspect.getmembers(sys.modules[__name__], inspect.isfunction))
