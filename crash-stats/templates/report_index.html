@@ -88,18 +88,18 @@
                 <tr title="{{ fields_desc['date_processed'] }}">
                   <th scope="row">Date Processed</th>
                   <td>
-                    {% if report.date_processed %}
-                      {{ report.date_processed | human_readable_iso_date }} UTC
+                    {% if report['timestamp.received'] %}
+                      {{ report['timestamp.received'] | timestamp_to_date }} UTC
                     {% endif %}
                   </td>
                 </tr>
 
                 {# Times #}
 
-                <tr title="{{ fields_desc['uptime'] }}">
+                <tr title="{{ fields_desc['uptimeTS'] }}">
                   <th scope="row">Uptime</th>
                   <td>
-                    {{ report.get('uptime') }}
+                    {{ report.get('uptimeTS') }}
                   </td>
                 </tr>
                 {% if report.last_crash %}
@@ -230,7 +230,7 @@
                 </tr>
                 <tr title="{{ fields_desc['address'] }}">
                   <th scope="row">Crash Address</th>
-                  <td>{{ report.address }}</td>
+                  <td>{{ hex(report.address) }}</td>
                 </tr>
 
                 {# Memory usage #}
@@ -294,7 +294,7 @@
                     </td>
                   </tr>
                 {% endif %}
-                <tr title="{{ fields_desc['processed_crash.addons_checked'] }}">
+                <tr title="{{ fields_desc['report.addons_checked'] }}">
                   <th scope="row">EMCheckCompatibility</th>
                   <td>
                     <pre>{% if report.addons_checked %}True{% else %}False{% endif %}</pre>
@@ -417,9 +417,10 @@
                 {% endfor %}
               </tbody>
             </table>
+          </div>
           <!-- /#annotations -->
-          {#
           <div id="bugzilla" class="ui-tabs-hide">
+          {#
             <div class="bugreporter">
               <p>
                 <b>Create a bug:</b>
@@ -438,12 +439,13 @@
                 </ul>
               </div>
             </div>
-          </div>
           #}
+          </div>
+
           <!-- /bugzilla -->
 
           <div id="extensions" class="ui-tabs-hide">
-            {% if report['Add-ons'] %}
+            {% if report['addons'] %}
               <table class="data-table">
                 <thead>
                   <tr>
@@ -455,7 +457,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for addon in report['Add-ons'] %}
+                  {% for addon in report['addons'] %}
                     <tr>
                       <td>{{ addon.id or "" }}</td>
                       <td>{{ addon.name or "" }}</td>
