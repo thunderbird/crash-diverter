@@ -1,34 +1,39 @@
 from flask import Flask, render_template, request
 from flask_assets import Environment, Bundle
 import helpers
+import morgue_api
 import settings
 
-
 application = Flask(__name__)
-for func in helpers.jinjafunctions.values():
-    application.add_template_global(func)
-application.add_template_global(settings)
+application.jinja_env.globals.update(settings=settings,
+    **helpers.jinjafunctions, hex=hex)
+for f in settings.FILTERS:
+    application.jinja_env.filters[f] = helpers.jinjafunctions[f]
+
 assets = Environment(application)
 assets.url = application.static_url_path
 
 @application.route("/report/<uuid>")
 def view_report(uuid):
-    report = {}
+    api = morgue_api.APIHelper(uuid)
+    report = api.get_results()
+
+    # TODO: Put field descriptions in here.
     fields_desc = {}
     report['product'] = 'Thunderbird'
     report['uuid'] = uuid
-    bh_url = ''
-    for attr in settings.report_fields:
-        report[attr] = ''
+    for attr in settings.REPORT_FIELDS:
+        if not report[attr]:
+            report[attr] = ''
         fields_desc[attr] = ''
     # Rename some of these from their Backtrace names.
-    report['signature'] = report['callstack']
+    report['signature'] = '|'.join(report['callstack']['frame'])
     report['address'] = report['fault.address']
 
     return render_template(
         'report_index.html',
-        buildhub_url=bh_url, fields_desc=fields_desc, raw = {},
-        report=report, parsed_dump = {}, public_raw_keys = []
+        fields_desc=fields_desc, raw = {}, report=report,
+        parsed_dump = {}, public_raw_keys = []
     )
 
 

@@ -1,3 +1,4 @@
 settings.py
 .webassets-cache
 *.pyc
+crashstats-base.min*
