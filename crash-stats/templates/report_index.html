@@ -78,7 +78,7 @@
                   <th scope="row">Signature</th>
                   <td>
                     {{ report.signature }}
-                    <a href="" class="sig-overview" title="View more reports of this type">More Reports</a>
+                    <a href="{{ settings.BT_CRASH_URL.format(uuid=report.uuid) }}" class="sig-overview" title="View more reports of this type">More Reports</a>
                   </td>
                 </tr>
                 <tr title="{{ fields_desc['uuid'] }}">
