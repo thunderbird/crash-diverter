@@ -102,7 +102,7 @@
                     {{ report.get('uptimeTS') }}
                   </td>
                 </tr>
-                {% if report.last_crash %}
+                {% if report.SecondsSinceLastCrash %}
                   <tr title="{{ fields_desc['SecondsSinceLastCrash'] }}">
                     <th scope="row">Last Crash</th>
                     <td>
@@ -199,7 +199,7 @@
                     {% endif %}
                   </td>
                 </tr>
-                <tr title="{{ fields_desc['raw_crash.AdapterDeviceID'] }}">
+                <tr title="{{ fields_desc['AdapterDeviceID'] }}">
                   <th scope="row">Adapter Device ID</th>
                   <td>
                     {% if report.AdapterDeviceName %}
@@ -212,11 +212,11 @@
 
                 {# Crash circumstances #}
 
-                {% if report.StartupCrash %}
-                  <tr title="{{ fields_desc['raw_crash.StartupCrash'] }}">
+                {% if report.StartupCrash is not none %}
+                  <tr title="{{ fields_desc['StartupCrash'] }}">
                     <th scope="row">Startup Crash</th>
                     <td>
-                      <pre>{{ booleanish_to_boolean(report.StartupCrash) }}</pre>
+                      <pre>{{ bool(report.StartupCrash) }}</pre>
                     </td>
                   </tr>
                 {% endif %}
@@ -243,7 +243,7 @@
                     </td>
                   </tr>
                 {% endif %}
-                {% if raw.AvailableVirtualMemory %}
+                {% if report.AvailableVirtualMemory %}
                   <tr title="{{ fields_desc['AvailableVirtualMemory'] }}">
                     <th scope="row">Available Virtual Memory</th>
                     <td>
@@ -251,7 +251,7 @@
                     </td>
                   </tr>
                 {% endif %}
-                {% if raw.AvailablePageFile %}
+                {% if report.AvailablePageFile %}
                   <tr title="{{ fields_desc['AvailablePageFile'] }}">
                     <th scope="row">Available Page File</th>
                     <td>
@@ -259,7 +259,7 @@
                     </td>
                   </tr>
                 {% endif %}
-                {% if raw.AvailablePhysicalMemory %}
+                {% if report.AvailablePhysicalMemory %}
                   <tr title="{{ fields_desc['AvailablePhysicalMemory'] }}">
                     <th scope="row">Available Physical Memory</th>
                     <td>
@@ -267,7 +267,7 @@
                     </td>
                   </tr>
                 {% endif %}
-                {% if raw.SystemMemoryUsePercentage %}
+                {% if report.SystemMemoryUsePercentage %}
                   <tr title="{{ fields_desc['SystemMemoryUsePercentage'] }}">
                     <th scope="row">System Memory Use Percentage</th>
                     <td>
@@ -275,7 +275,7 @@
                     </td>
                   </tr>
                 {% endif %}
-                {% if raw.OOMAllocationSize %}
+                {% if report.OOMAllocationSize %}
                   <tr title="{{ fields_desc['OOMAllocationSize'] }}">
                     <th scope="row">OOM Allocation Size</th>
                     <td>
@@ -286,7 +286,7 @@
 
                 {# Miscellaneous #}
 
-                {% if raw.Accessibility %}
+                {% if report.Accessibility %}
                   <tr title="{{ fields_desc['Accessibility'] }}">
                     <th scope="row">Accessibility</th>
                     <td>

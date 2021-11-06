@@ -35,8 +35,11 @@ class APIHelper(object):
             else:
                 value = res['values'][i][1][0]
             report_data[name] = value
+
         if 'callstack' in report_data and report_data['callstack']:
             report_data['callstack'] = json.loads(report_data['callstack'])
+        if 'CrashTime' and 'InstallTime' in report_data:
+            report_data['install_age'] = report_data['CrashTime'] - report_data['InstallTime']
         return report_data
 
     def deal_with_addons(self, report):
