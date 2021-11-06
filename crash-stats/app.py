@@ -6,7 +6,7 @@ import settings
 
 application = Flask(__name__)
 application.jinja_env.globals.update(settings=settings,
-    **helpers.jinjafunctions, hex=hex)
+    **helpers.jinjafunctions, hex=hex, bool=bool)
 for f in settings.FILTERS:
     application.jinja_env.filters[f] = helpers.jinjafunctions[f]
 
@@ -23,11 +23,11 @@ def view_report(uuid):
     report['product'] = 'Thunderbird'
     report['uuid'] = uuid
     for attr in settings.REPORT_FIELDS:
-        if not report[attr]:
-            report[attr] = ''
+        if attr not in report:
+            report[attr] = None
         fields_desc[attr] = ''
     # Rename some of these from their Backtrace names.
-    report['signature'] = '|'.join(report['callstack']['frame'])
+    report['signature'] = report['callstack']['frame'][0]
     report['address'] = report['fault.address']
 
     return render_template(
