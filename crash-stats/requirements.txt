@@ -4,3 +4,4 @@ humanfriendly
 isodate
 jsmin
 markupsafe
+boto3

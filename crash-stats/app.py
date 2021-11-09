@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request
-from flask_assets import Environment, Bundle
+from flask import abort, Flask, render_template, request
+from flask_assets import Bundle, Environment
 import helpers
 import morgue_api
 import settings
@@ -16,7 +16,10 @@ assets.url = application.static_url_path
 @application.route("/report/<uuid>")
 def view_report(uuid):
     api = morgue_api.APIHelper(uuid)
-    report = api.get_results()
+    try:
+        report = api.get_results()
+    except morgue_api.NotFoundError:
+        abort(404)
 
     # TODO: Put field descriptions in here.
     fields_desc = {}
@@ -36,6 +39,9 @@ def view_report(uuid):
         parsed_dump = {}, public_raw_keys = []
     )
 
+@application.errorhandler(404)
+def not_found(e):
+    return render_template('404.html'), 404
 
 css = Bundle(
     'crashstats/css/base.less',

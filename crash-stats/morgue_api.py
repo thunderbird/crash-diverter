@@ -4,6 +4,11 @@ import requests
 import settings
 from urllib.parse import unquote_plus
 
+class NotFoundError(Exception):
+    """Raised when no data is returned by the API."""
+    pass
+
+
 class APIHelper(object):
     """
     Access the Backtrace Morgue API via HTTP requests.
@@ -16,6 +21,7 @@ class APIHelper(object):
         self.timestamp = 1609509600
 
     def run_query(self):
+        self.found = False
         query = {"filter":[{
             "crashid": [["contains", self.crashid]],
             "timestamp": [["at-least", self.timestamp]]
@@ -24,6 +30,9 @@ class APIHelper(object):
         "select":settings.REPORT_FIELDS}
         data = requests.post(self.query_url, json=query)
         self.results = data.json()
+        # Check if any results were returned.
+        if self.results['_']['runtime']['filter']['rows'] < 1:
+            raise NotFoundError
 
     def parse_results(self):
         report_data = {}
