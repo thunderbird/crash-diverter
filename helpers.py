@@ -25,7 +25,7 @@ def create_crash_id(timestamp=None, throttle_result=1):
         timestamp = utc_now().date()
 
     id_ = str(uuid.uuid4())
-    return "%s%d%02d%02d%02d" % (
+    return "bp-%s%d%02d%02d%02d" % (
         id_[:-7],
         throttle_result,
         timestamp.year % 100,

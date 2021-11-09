@@ -34,18 +34,20 @@ class CrashDiverter:
         # Prepare data.
         resp.context.files = {}
         form = req.get_media()
-        import pdb; pdb.set_trace()
+
         for part in form:
             resp.context.files[part.name] = (part.filename, part.stream.read(), part.content_type)
         self.data = extract_values()
-        data['crashid'] = helpers.create_crash_id()
+        self.data['crashid'] = helpers.create_crash_id()
 
         ans = requests.request(method='POST', url=target_url, data=self.data, files=resp.context.files, params=req.params)
         resp.status = ans.status_code
         resp.content_type = 'text/plain'
         resp.text = ''
-        if resp.status == falcon.HTTP_200:
-            resp.text = 'CrashID=bp-{crashid}\n'.format(crashid=data['crashid'])
+        if resp.status == 200:
+            respdata = json.loads(ans.text)
+            if respdata.get('response') == 'ok' and respdata.get('_rxid'):
+                resp.text = 'CrashID={crashid}\n'.format(crashid=self.data['crashid'])
 
 
 application = falcon.App()
