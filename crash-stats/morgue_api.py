@@ -32,7 +32,7 @@ class APIHelper(object):
         self.results = data.json()
         # Check if any results were returned.
         if self.results['_']['runtime']['filter']['rows'] < 1:
-            raise NotFoundError
+            raise NotFoundError("Backtrace returned no results.")
 
     def parse_results(self):
         report_data = {}
