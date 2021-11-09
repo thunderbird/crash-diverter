@@ -4,7 +4,7 @@ import helpers
 import morgue_api
 import settings
 
-application = Flask(__name__)
+application = Flask(__name__, static_url_path='/static')
 application.jinja_env.globals.update(settings=settings,
     **helpers.jinjafunctions, hex=hex, bool=bool)
 for f in settings.FILTERS:
