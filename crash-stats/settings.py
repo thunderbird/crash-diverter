@@ -1,5 +1,11 @@
-# URL to query API.
+# Base URL to the Backtrace API.
 BT_API_URL = 'https://thunderbird.sp.backtrace.io/api'
+
+# URL for API login.
+BT_LOGIN_URL = BT_API_URL + '/login'
+
+# URL for doing queries.
+BT_QUERY_URL = BT_API_URL + '/query?token={token}&universe=thunderbird&project=Thunderbird'
 
 # URL to link directly to a crash in Backtrace.
 BT_CRASH_URL = 'https://thunderbird.sp.backtrace.io/p/Thunderbird/triage?filters=((crashid,contains,{uuid}))'

@@ -22,6 +22,7 @@ def view_report(uuid):
         abort(404)
 
     # TODO: Put field descriptions in here.
+    # https://hg.mozilla.org/mozilla-central/file/tip/toolkit/crashreporter/CrashAnnotations.yaml
     fields_desc = {}
     report['product'] = 'Thunderbird'
     report['uuid'] = uuid

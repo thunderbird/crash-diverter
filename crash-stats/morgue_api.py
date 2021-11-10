@@ -5,7 +5,19 @@ import settings
 from urllib.parse import unquote_plus
 
 class NotFoundError(Exception):
-    """Raised when no data is returned by the API."""
+    """Query works but no data is returned by the API."""
+    pass
+
+class UnknownAPIError(Exception):
+    """Backtrace API query failed for no known reason."""
+    pass
+
+class KnownAPIError(Exception):
+    """Backtrace API query failed and there's an error message in the response."""
+    pass
+
+class LoginError(Exception):
+    """Unable to complete login to Backtrace API."""
     pass
 
 
@@ -14,14 +26,35 @@ class APIHelper(object):
     Access the Backtrace Morgue API via HTTP requests.
     """
     def __init__(self, crashid):
-        token = (boto3.resource('dynamodb').Table(settings.DYNAMO_TABLE)
-                      .get_item(Key={'name': 'bttoken'})['Item']['token'])
-        self.query_url = settings.BT_API_URL + '/query?token={0}&universe=thunderbird&project=Thunderbird'.format(token)
         self.crashid = crashid
         self.timestamp = 1609509600
+        self.retries = 0
+
+    def set_token(self):
+        token = (boto3.resource('dynamodb').Table(settings.DYNAMO_TABLE)
+                      .get_item(Key={'name': 'bttoken'})['Item']['token'])
+        self.query_url = settings.BT_QUERY_URL.format(token=token)
+
+    def do_login(self):
+        """ Login to Backtrace and store the token."""
+        table = boto3.resource('dynamodb').Table(settings.DYNAMO_TABLE)
+        key = {'name': 'btcreds'}
+
+        username = table.get_item(Key=key)['Item']['username']
+        password = table.get_item(Key=key)['Item']['password']
+
+        resp = requests.post(settings.BT_LOGIN_URL, data={'username': username, 'password': password})
+
+        if 'token' in resp.json():
+            token = resp.json()['token']
+        else:
+            raise LoginError("Can't find token in login response.")
+
+        table.put_item(Item={'name': 'bttoken', 'token': token})
 
     def run_query(self):
-        self.found = False
+        """ Run the API query and perform error checking on the response."""
+        self.set_token()
         query = {"filter":[{
             "crashid": [["contains", self.crashid]],
             "timestamp": [["at-least", self.timestamp]]
@@ -30,9 +63,28 @@ class APIHelper(object):
         "select":settings.REPORT_FIELDS}
         data = requests.post(self.query_url, json=query)
         self.results = data.json()
+
         # Check if any results were returned.
+        if 'error' in self.results:
+            if self.results['error']['code'] == 5:
+                if self.retries < 2:
+                    self.do_login()
+                    self.retries += 1
+                    self.run_query()
+                    return
+                else:
+                    raise LoginError('Unable to login after 2 attempts.')
+            else:
+                raise KnownAPIError('Code {code}: {msg}'.format(
+                    code=str(self.results['error']['code']),
+                    msg=str(self.results['error']['message'])
+                ))
+
+        if data.status_code != 200 or '_' not in self.results:
+            raise UnknownAPIError('Backtrace returned a broken response.')
+
         if self.results['_']['runtime']['filter']['rows'] < 1:
-            raise NotFoundError("Backtrace returned no results.")
+            raise NotFoundError('Backtrace returned no results.')
 
     def parse_results(self):
         report_data = {}
