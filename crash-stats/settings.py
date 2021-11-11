@@ -1,3 +1,5 @@
+from flask_assets import Bundle
+
 # Base URL to the Backtrace API.
 BT_API_URL = 'https://thunderbird.sp.backtrace.io/api'
 
@@ -28,3 +30,22 @@ REPORT_FIELDS = [
 ]
 
 FILTERS = ['timestamp_to_date', 'human_readable_iso_date']
+
+
+SITE_CSS = Bundle(
+    'crashstats/css/base.less',
+    # Below is only for the report index page.
+    'crashstats/css/pages/report_index.less',
+    'crashstats/css/components/tree.less',
+    'jsonview/jsonview.custom.less',
+    filters='less', output='css/crashstats-base.min.css'
+)
+
+SITE_JS = Bundle(
+    'crashstats/js/jquery/jquery.js',
+    'crashstats/js/socorro/timeutils.js',
+    'crashstats/js/socorro/nav.js',
+    # Below is only for the report index page.
+    'crashstats/js/socorro/report.js',
+    filters='jsmin', output='js/crashstats-base.min.js'
+)

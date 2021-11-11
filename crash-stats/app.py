@@ -40,28 +40,24 @@ def view_report(uuid):
         parsed_dump = {}, public_raw_keys = []
     )
 
+
+@application.errorhandler(400)
+def not_found(e):
+    return render_template('400.html'), 400
+
+
 @application.errorhandler(404)
 def not_found(e):
     return render_template('404.html'), 404
 
-css = Bundle(
-    'crashstats/css/base.less',
-    # Below is only for the report index page.
-    'crashstats/css/pages/report_index.less',
-    'crashstats/css/components/tree.less',
-    'jsonview/jsonview.custom.less',
-    filters='less', output='css/crashstats-base.min.css'
-)
-assets.register('crashstats_base', css)
 
-assets.register('base_js', Bundle(
-    'crashstats/js/jquery/jquery.js',
-    'crashstats/js/socorro/timeutils.js',
-    'crashstats/js/socorro/nav.js',
-    # Below is only for the report index page.
-    'crashstats/js/socorro/report.js',
-    filters='jsmin', output='js/crashstats-base.min.js'
-))
+@application.errorhandler(500)
+def not_found(e):
+    return render_template('500.html'), 500
+
+# Do asset bundling.
+assets.register('crashstats_base', settings.SITE_CSS)
+assets.register('base_js', settings.SITE_JS)
 
 if __name__ == '__main__':
       application.run(host='0.0.0.0', port=5000)
