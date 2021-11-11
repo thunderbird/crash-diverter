@@ -122,7 +122,7 @@ class APIHelper(object):
 
         original_addon_str = report.get('Add-ons', '')
         if not original_addon_str:
-            addon = []
+            addons = []
         else:
             addons= [
                 unquote_plus(_get_formatted_addon(x))
