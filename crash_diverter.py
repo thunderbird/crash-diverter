@@ -13,7 +13,7 @@ other_urls = []
 class CrashDiverter:
     def copy_post_remote(req, resp, resource):
         for url in other_urls:
-            ans = requests.request(method='POST', url=url, data=self.data, files=resp.context.files, params=req.params)
+            ans = requests.request(method='POST', url=url, data=resp.context.data, files=resp.context.files, params=req.params)
 
     @falcon.after(copy_post_remote)
     def on_post(self, req, resp):
@@ -37,17 +37,17 @@ class CrashDiverter:
 
         for part in form:
             resp.context.files[part.name] = (part.filename, part.stream.read(), part.content_type)
-        self.data = extract_values()
-        self.data['crashid'] = helpers.create_crash_id()
+        resp.context.data = extract_values()
+        resp.context.data['crashid'] = helpers.create_crash_id()
 
-        ans = requests.request(method='POST', url=target_url, data=self.data, files=resp.context.files, params=req.params)
+        ans = requests.request(method='POST', url=target_url, data=resp.context.data, files=resp.context.files, params=req.params)
         resp.status = ans.status_code
         resp.content_type = 'text/plain'
         resp.text = ''
         if resp.status == 200:
             respdata = json.loads(ans.text)
             if respdata.get('response') == 'ok' and respdata.get('_rxid'):
-                resp.text = 'CrashID={crashid}\n'.format(crashid=self.data['crashid'])
+                resp.text = 'CrashID={crashid}\n'.format(crashid=resp.context.data['crashid'])
 
 
 application = falcon.App()
