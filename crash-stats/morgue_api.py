@@ -134,6 +134,8 @@ class APIHelper(object):
             report_data['callstack'] = json.loads(report_data['callstack'])
         if 'CrashTime' and 'InstallTime' in report_data:
             report_data['install_age'] = report_data['CrashTime'] - report_data['InstallTime']
+        if 'CrashTime' and 'StartupTime' in report_data:
+            report_data['uptime'] = max(0, report_data['CrashTime'] - report_data['StartupTime'])
         return report_data
 
     def deal_with_addons(self, report):

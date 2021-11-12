@@ -25,8 +25,8 @@ REPORT_FIELDS = [
     "AvailableVirtualMemory", "buildid", "callstack", "callstack.functions",
     "cpu.count", "CrashTime", "EMCheckCompatibility", "fault.address", "InstallTime",
     "MozCrashReason", "OOMAllocationSize", "os_name", "os_version", "ReleaseChannel",
-    "SecondsSinceLastCrash", "StartupCrash", "SystemMemoryUsePercentage", "timestamp.received",
-    "TotalVirtualMemory", "UptimeTS", "version", "WindowsErrorReporting"
+    "SecondsSinceLastCrash", "StartupCrash", "StartupTime", "SystemMemoryUsePercentage",
+    "timestamp.received", "TotalVirtualMemory", "UptimeTS", "version", "WindowsErrorReporting"
 ]
 
 FILTERS = ['timestamp_to_date', 'human_readable_iso_date']
