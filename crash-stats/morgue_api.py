@@ -1,8 +1,10 @@
 import boto3
 import json
+import re
 import requests
 import settings
 from urllib.parse import unquote_plus
+
 
 class NotFoundError(Exception):
     """Query works but no data is returned by the API."""
@@ -20,6 +22,28 @@ class LoginError(Exception):
     """Unable to complete login to Backtrace API."""
     pass
 
+
+# Borrowed from
+CRASH_ID_RE = re.compile(
+    r"""
+    ^
+    [a-f0-9]{8}-
+    [a-f0-9]{4}-
+    [a-f0-9]{4}-
+    [a-f0-9]{4}-
+    [a-f0-9]{6}
+    [0-9]{6}      # date in YYMMDD
+    $
+""",
+    re.VERBOSE,
+)
+
+def is_crash_id_valid(crash_id):
+    """Returns whether this is a valid crash id
+    :arg str crash_id: the crash id in question
+    :returns: True if it's valid, False if not
+    """
+    return bool(CRASH_ID_RE.match(crash_id))
 
 class APIHelper(object):
     """
@@ -54,6 +78,14 @@ class APIHelper(object):
 
     def run_query(self):
         """ Run the API query and perform error checking on the response."""
+        # Make sure the crash ID is even valid.
+        if 'bp-' in self.crashid:
+            crashidtest = self.crashid[3:]
+        else:
+            crashidtest = self.crashid
+        if not is_crash_id_valid(crashidtest):
+                raise ValueError('Invalid crash ID.')
+
         self.set_token()
         query = {"filter":[{
             "crashid": [["contains", self.crashid]],
@@ -97,6 +129,7 @@ class APIHelper(object):
                 value = res['values'][i][1][0]
             report_data[name] = value
 
+        # Report data modifications and calculations.
         if 'callstack' in report_data and report_data['callstack']:
             report_data['callstack'] = json.loads(report_data['callstack'])
         if 'CrashTime' and 'InstallTime' in report_data:

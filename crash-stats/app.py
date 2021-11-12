@@ -20,6 +20,8 @@ def view_report(uuid):
         report = api.get_results()
     except morgue_api.NotFoundError:
         abort(404)
+    except ValueError:
+        abort(400, 'Invalid crash id specified.')
 
     # TODO: Put field descriptions in here.
     # https://hg.mozilla.org/mozilla-central/file/tip/toolkit/crashreporter/CrashAnnotations.yaml
@@ -43,7 +45,7 @@ def view_report(uuid):
 
 @application.errorhandler(400)
 def not_found(e):
-    return render_template('400.html'), 400
+    return render_template('400.html', error=e), 400
 
 
 @application.errorhandler(404)
