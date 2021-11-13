@@ -23,7 +23,8 @@ class LoginError(Exception):
     pass
 
 
-# Borrowed from
+# Borrowed from:
+# https://github.com/mozilla-services/socorro/blob/main/socorro/signature/utils.py#L354
 CRASH_ID_RE = re.compile(
     r"""
     ^

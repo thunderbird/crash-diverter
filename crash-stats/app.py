@@ -23,18 +23,16 @@ def view_report(uuid):
     except ValueError:
         abort(400, 'Invalid crash id specified.')
 
+    report['uuid'] = uuid
     # TODO: Put field descriptions in here.
     # https://hg.mozilla.org/mozilla-central/file/tip/toolkit/crashreporter/CrashAnnotations.yaml
     fields_desc = {}
-    report['product'] = 'Thunderbird'
-    report['uuid'] = uuid
     for attr in settings.REPORT_FIELDS:
         if attr not in report:
             report[attr] = None
         fields_desc[attr] = ''
-    # Rename some of these from their Backtrace names.
-    report['signature'] = report['callstack']['frame'][0]
-    report['address'] = report['fault.address']
+
+    report = helpers.cleanup_report(report)
 
     return render_template(
         'report_index.html',

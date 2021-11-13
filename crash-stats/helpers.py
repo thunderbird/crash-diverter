@@ -10,6 +10,19 @@ import isodate
 import jinja2
 import markupsafe
 
+def cleanup_report(report):
+    """Renames attributes and other modifications to attributes on a crash report."""
+    report['product'] = 'Thunderbird'
+    report['address'] = report['fault.address']
+
+    report['signature'] = report['callstack']['frame'][0]
+    # Add note about size of OOM errors.
+    if report['signature'] == "OutOfMemory":
+        if report.get('OOMAllocationSize') and report['OOMAllocationSize'] <= 262144:
+            report['signature'] += ' | small'
+        else:
+            report['signature'] += ' | large'
+    return report
 
 def urlencode_obj(thing):
     """Return a URL encoded string, created from a regular dict or any object
