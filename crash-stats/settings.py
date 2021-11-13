@@ -21,12 +21,13 @@ DYNAMO_TABLE = 'crash_stats'
 # List of data fields to pull from Backtrace.
 REPORT_FIELDS = [
     "Accessibility", "AdapterDeviceID", "AdapterDriverVendor", "AdapterDriverVersion",
-    "Add-ons", "AsyncShutdownTimeout", "AvailablePageFile", "AvailablePhysicalMemory",
-    "AvailableVirtualMemory", "buildid", "callstack", "callstack.functions",
-    "cpu.count", "CrashTime", "EMCheckCompatibility", "fault.address", "InstallTime",
-    "MozCrashReason", "OOMAllocationSize", "os_name", "os_version", "ReleaseChannel",
-    "SecondsSinceLastCrash", "StartupCrash", "StartupTime", "SystemMemoryUsePercentage",
-    "timestamp.received", "TotalVirtualMemory", "UptimeTS", "version", "WindowsErrorReporting"
+    "AdapterVendorID", "Add-ons", "AsyncShutdownTimeout", "AvailablePageFile",
+    "AvailablePhysicalMemory", "AvailableVirtualMemory", "buildid", "callstack",
+    "callstack.functions", "classifiers", "cpu.count", "CrashTime", "EMCheckCompatibility",
+    "fault.address", "InstallTime", "MozCrashReason", "Notes", "OOMAllocationSize", "os_name",
+    "os_version", "ProcessType", "ReleaseChannel", "SecondsSinceLastCrash", "StartupCrash",
+    "StartupTime", "SystemMemoryUsePercentage", "timestamp.received", "TotalVirtualMemory",
+    "UptimeTS", "version", "WindowsErrorReporting"
 ]
 
 FILTERS = ['timestamp_to_date', 'human_readable_iso_date']
