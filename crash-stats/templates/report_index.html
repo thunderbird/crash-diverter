@@ -99,14 +99,14 @@
                 <tr title="{{ fields_desc['uptime'] }}">
                   <th scope="row">Uptime</th>
                   <td>
-                    {{ report.get('uptime') }}
+                    {{ show_duration(report.get('uptime')) }}
                   </td>
                 </tr>
                 {% if report.SecondsSinceLastCrash %}
                   <tr title="{{ fields_desc['SecondsSinceLastCrash'] }}">
                     <th scope="row">Last Crash</th>
                     <td>
-                      {{ report.get('SecondsSinceLastCrash') }}
+                      {{ show_duration(report.get('SecondsSinceLastCrash'), 'seconds before submission') }}
                     </td>
                   </tr>
                 {% endif %}
@@ -114,7 +114,7 @@
                   <tr title="{{ fields_desc['install_age'] }}">
                     <th scope="row">Install Age</th>
                     <td>
-                      {{ report.get('install_age') }}
+                      {{ show_duration(report.get('install_age'), 'seconds since version was first installed') }}
                     </td>
                   </tr>
                 {% endif %}
@@ -220,6 +220,12 @@
                     </td>
                   </tr>
                 {% endif %}
+                <tr title="{{ fields_desc['ProcessType'] }}">
+                  <th scope="row">Process Type</th>
+                  <td>
+                    {{ report.ProcessType or "parent" }}
+                  </td>
+                </tr>
                 <tr title="{{ fields_desc['MozCrashReason'] }}">
                     <th scope="row">MOZ_CRASH Reason </th>
                     <td><pre>{{ report.MozCrashReason }}</pre></td>
@@ -300,6 +306,14 @@
                     <pre>{% if report.addons_checked %}True{% else %}False{% endif %}</pre>
                   </td>
                 </tr>
+                {% if report.Notes %}
+                  <tr title="{{ fields_desc['Notes'] }}">
+                    <th scope="row">App Notes</th>
+                    <td>
+                      <pre>{{ report.Notes }}</pre>
+                    </td>
+                  </tr>
+                {% endif %}
               </tbody>
             </table>
 

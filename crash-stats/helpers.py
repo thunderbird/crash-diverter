@@ -272,14 +272,6 @@ def show_duration(seconds, unit="seconds"):
         125 seconds <span>(2 minutes, 5 seconds)</span>
     If we can't do it, just return as is.
     """
-    template = engines["backend"].from_string(
-        "{{ seconds_str }} {{ unit }} "
-        "{% if seconds > 60 %}"
-        '<span class="humanized" title="{{ seconds_str }} {{ unit }}">'
-        "({{ humanized }})</span>"
-        "{% endif %}"
-    )
-
     try:
         seconds = int(seconds)
     except (ValueError, TypeError):
@@ -293,16 +285,21 @@ def show_duration(seconds, unit="seconds"):
         # escaped.
         return seconds
 
+    template = '{seconds_str} {unit}'
+    if isinstance(seconds, int) and seconds > 60:
+        template = template + (
+            '<span class="humanized" title="{seconds_str} {unit}">'
+            '({humanized})</span>'
+        )
+
     humanized = humanfriendly.format_timespan(seconds)
-    return mark_safe(
-        template.render(
-            {
-                "seconds_str": format(seconds, ","),
-                "seconds": seconds,
-                "unit": unit,
-                "humanized": humanized,
-            }
-        ).strip()
+    return markupsafe.Markup(
+        template.format(
+            seconds_str=format(seconds, ","),
+            seconds=seconds,
+            unit=unit,
+            humanized=humanized
+        )
     )
 
 
@@ -312,14 +309,6 @@ def show_filesize(bytes, unit="bytes"):
         12345678 <span title="12345678 bytes">(11.77 MB)</span>
     If we can't do it, just return as is.
     """
-    template = engines["backend"].from_string(
-        "{{ bytes_str }} {{ unit }} "
-        "{% if bytes > 1024 %}"
-        '<span class="humanized" title="{{ bytes_str }} {{ unit }}">'
-        "({{ humanized }})</span>"
-        "{% endif %}"
-    )
-
     try:
         bytes = int(bytes)
     except (ValueError, TypeError):
@@ -333,16 +322,21 @@ def show_filesize(bytes, unit="bytes"):
         # escaped.
         return bytes
 
+    template = '{bytes_str} {unit}'
+    if isinstance(bytes, int) and bytes > 1024:
+        template = template + (
+            '<span class="humanized" title="{bytes_str} {unit}">'
+            '({humanized})</span>'
+        )
+
     humanized = humanfriendly.format_size(bytes)
-    return mark_safe(
-        template.render(
-            {
-                "bytes_str": format(bytes, ","),
-                "bytes": bytes,
-                "unit": unit,
-                "humanized": humanized,
-            }
-        ).strip()
+    return markupsafe.Markup(
+        template.format(
+            bytes_str=format(bytes, ","),
+            bytes=bytes,
+            unit=unit,
+            humanized=humanized,
+        )
     )
 
 
@@ -445,15 +439,6 @@ def filter_featured_versions(product_versions):
 
 def filter_not_featured_versions(product_versions):
     return [pv for pv in product_versions if not pv["is_featured"]]
-
-
-# Temporary overrides for broken functions.
-def show_duration(seconds, unit="seconds"):
-    return seconds
-
-
-def show_filesize(bytes, unit="bytes"):
-    return bytes
 
 
 jinjafunctions = dict(inspect.getmembers(sys.modules[__name__], inspect.isfunction))
