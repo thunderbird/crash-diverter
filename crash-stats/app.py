@@ -33,11 +33,12 @@ def view_report(uuid):
         fields_desc[attr] = ''
 
     report = helpers.cleanup_report(report)
+    crashing_thread = {'frames': report['crash_frames']}
 
     return render_template(
         'report_index.html',
         fields_desc=fields_desc, raw = {}, report=report,
-        parsed_dump = {}, public_raw_keys = []
+        parsed_dump = {}, public_raw_keys = [], crashing_thread = crashing_thread
     )
 
 

@@ -130,9 +130,24 @@ class APIHelper(object):
                 value = res['values'][i][1][0]
             report_data[name] = value
 
+        report_data['crash_frames'] = []
         # Report data modifications and calculations.
         if 'callstack' in report_data and report_data['callstack']:
             report_data['callstack'] = json.loads(report_data['callstack'])
+            report_data['callstack.functions'] = json.loads(report_data['callstack.functions'])
+            report_data['callstack.files'] = json.loads(report_data['callstack.files'])
+            report_data['callstack.modules'] = json.loads(report_data['callstack.modules'])
+            for framenum, function in enumerate(report_data['callstack.functions']['frame']):
+                frame = {}
+                frame['frame'] = framenum
+                frame['signature'] = function
+                files = report_data['callstack.files']['frame'][framenum].split(':')
+                frame['line'] = files[1] if len(files) > 1 else ''
+                frame['file'] = files[0] if len(files) > 0 else ''
+                frame['module'] = report_data['callstack.modules']['frame'][framenum]
+                frame['missing_symbols'] = True if '.dll' in function else False
+                report_data['crash_frames'].append(frame)
+
         if 'CrashTime' and 'InstallTime' in report_data:
             report_data['install_age'] = report_data['CrashTime'] - report_data['InstallTime']
         if 'CrashTime' and 'StartupTime' in report_data:

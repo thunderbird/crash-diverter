@@ -317,10 +317,10 @@
               </tbody>
             </table>
 
-            {% if parsed_dump.threads %}
+            {% if crashing_thread.frames %}
               <div id="frames">
                 {% if crashing_thread is not none %}
-                  <h2>Crashing Thread ({{ crashing_thread }}){% if parsed_dump.threads[crashing_thread].thread_name %}, Name: {{ parsed_dump.threads[crashing_thread].thread_name }}{% endif %}</h2>
+                  <h2>Crashing Thread</h2>
                   <table class="data-table">
                     <thead>
                       <tr>
@@ -328,11 +328,10 @@
                         <th scope="col">Module</th>
                         <th class="signature-column" scope="col">Signature</th>
                         <th scope="col">Source</th>
-                        <th scope="col">Trust</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {% for frame in parsed_dump.threads[crashing_thread].frames %}
+                      {% for frame in crashing_thread.frames %}
                         <tr class="{% if frame.missing_symbols %}missingsymbols{% endif %}">
                           <td>
                             {% if frame.missing_symbols %}
@@ -349,7 +348,6 @@
                               {% if frame.file %}{{ frame.file }}:{{ frame.line }}{% endif %}
                             {% endif %}
                           </td>
-                          <td>{{ frame.trust }}</td>
                         </tr>
                       {% endfor %}
                     </tbody>
