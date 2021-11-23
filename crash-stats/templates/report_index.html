@@ -38,6 +38,7 @@
       <div class="body">
         {# Header #}
         <div id="sumo-link">
+          <a href="https://support.mozilla.org/en-US/kb/thunderbird-crashes" title="SUMO docs about Thunderbird crashes">Help! What do I do if Thunderbird is crashing?</a>
           <a href="https://support.mozilla.org/search?{{ make_query_string(q=report.signature) }}" title="Find more answers at support.mozilla.org!">Search Mozilla Support for this signature</a>
           <a href="https://developer.mozilla.org/en-US/docs/Understanding_crash_reports" title="MDN documentation about crash reports">How to read this crash report</a>
         </div>
@@ -78,7 +79,6 @@
                   <th scope="row">Signature</th>
                   <td>
                     {{ report.signature }}
-                    <a href="{{ settings.BT_CRASH_URL.format(uuid=report.uuid) }}" class="sig-overview" title="View more reports of this type">More Reports</a>
                   </td>
                 </tr>
                 <tr title="{{ fields_desc['uuid'] }}">
@@ -310,7 +310,7 @@
                   <tr title="{{ fields_desc['Notes'] }}">
                     <th scope="row">App Notes</th>
                     <td>
-                      <pre>{{ report.Notes }}</pre>
+                      <pre>{{ report.Notes }}<a href="{{ settings.BT_CRASH_URL.format(uuid=report.uuid) }}" class="sig-overview" title="View more reports of this type">More</a></pre>
                     </td>
                   </tr>
                 {% endif %}
@@ -353,7 +353,7 @@
                     </tbody>
                   </table>
                   <p>
-                    <a href="#allthreads" data-show="Show other threads" data-hide="Hide other threads">Show other threads</a>
+                    <a href="#allthreads" class="hidden" data-show="Show other threads" data-hide="Hide other threads">Show other threads</a>
                   </p>
                 {% endif %}
 
