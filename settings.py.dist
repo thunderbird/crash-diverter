@@ -11,6 +11,6 @@ backtrace_token = ''
 backtrace_url = 'https://submit.backtrace.io/thunderbird/' + backtrace_token + '/minidump'
 
 #List of extra.json attributes not to submit as POST parameters.
-skip_attributes = ['ModuleSignatureInfo', 'Winsock_LSP', 'TelemetryEnvironment', 'ThreadIdNameMapping',
+skip_attributes = ['ModuleSignatureInfo', 'Winsock_LSP', 'ThreadIdNameMapping',
     'Version', 'BuildID', ]
 
