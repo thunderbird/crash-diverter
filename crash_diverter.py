@@ -25,6 +25,7 @@ class CrashDiverter:
                 # Get useful bits out of TelemetryEnvironment
                 data['os_name'] = env['system']['os']['name']
                 data['os_version'] = env['system']['os']['version']
+                data['cpu_arch'] = env['build']['architecture']
 
             # Delete unwanted attributes.
             for key in settings.skip_attributes:
