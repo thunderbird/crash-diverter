@@ -142,8 +142,13 @@ class APIHelper(object):
                 frame['frame'] = framenum
                 frame['signature'] = function
                 files = report_data['callstack.files']['frame'][framenum].split(':')
-                frame['line'] = files[1] if len(files) > 1 else ''
-                frame['file'] = files[0] if len(files) > 0 else ''
+                if len(files) > 1:
+                    frame['file'] = ':'.join(files[:-1])
+                    frame['line'] = files[-1]
+                else:
+                    frame['file'] = files[0] if len(files) > 0 else ''
+                    frame['line'] = ''
+
                 frame['module'] = report_data['callstack.modules']['frame'][framenum]
                 frame['missing_symbols'] = True if '.dll' in function else False
                 report_data['crash_frames'].append(frame)
