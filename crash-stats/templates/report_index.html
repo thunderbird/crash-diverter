@@ -310,7 +310,7 @@
                   <tr title="{{ fields_desc['Notes'] }}">
                     <th scope="row">App Notes</th>
                     <td>
-                      <pre>{{ report.Notes }}<a href="{{ settings.BT_CRASH_URL.format(uuid=report.uuid) }}" class="sig-overview" title="View more reports of this type">More</a></pre>
+                      <pre>{{ report.Notes }}
                     </td>
                   </tr>
                 {% endif %}
@@ -319,6 +319,7 @@
 
             {% if crashing_thread.frames %}
               <div id="frames">
+              <a href="{{ settings.BT_CRASH_URL.format(uuid=report.uuid) }}" class="sig-overview" title="View more reports of this type">More Data</a></pre>
                 {% if crashing_thread is not none %}
                   <h2>Crashing Thread</h2>
                   <table class="data-table">
