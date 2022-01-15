@@ -1,0 +1,21 @@
+{% extends "crashstats_base.html" %}
+
+{% block page_title %}Thunderbird Crash Reports{% endblock %}
+
+{% block content %}
+<div id="mainbody">
+  <div class="panel">
+    <div class="body">
+    {# Header #}
+      <div id="sumo-link">
+        <a href="https://support.mozilla.org/en-US/kb/thunderbird-crashes" title="SUMO docs about Thunderbird crashes">Help! What do I do if Thunderbird is crashing?</a>
+        <a href="https://developer.mozilla.org/en-US/docs/Understanding_crash_reports" title="MDN documentation about crash reports">How to read crash reports</a>
+      </div>
+    </div>
+  <p> Crash IDs start with "bp-"" and can be found in Crash Reports under the Help->More Troubleshooting Information menu.</p>
+  <form id="form" method="get">
+   <input type="text" size="50" name="crashid" oninput="document.getElementById('form').action = window.location+'report/'+this.value;">
+   <input type="submit" value="Enter Crash ID">
+  </form>
+  </div>
+{% endblock %}

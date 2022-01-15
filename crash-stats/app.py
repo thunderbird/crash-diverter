@@ -1,4 +1,4 @@
-from flask import abort, Flask, render_template, request
+from flask import abort, Flask, redirect, render_template, request
 from flask_assets import Bundle, Environment
 import helpers
 import morgue_api
@@ -12,6 +12,16 @@ for f in settings.FILTERS:
 
 assets = Environment(application)
 assets.url = application.static_url_path
+
+@application.route("/")
+def index():
+    crashid = request.args.get('crashid')
+    if crashid:
+        if morgue_api.is_crash_id_valid(crashid[3:]):
+            return redirect('/report/{crashid}'.format(crashid=crashid))
+        else:
+            abort(400, 'Invalid crash id specified.')
+    return render_template('index.html')
 
 @application.route("/report/<uuid>")
 def view_report(uuid):
