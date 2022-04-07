@@ -44,6 +44,8 @@ def is_crash_id_valid(crash_id):
     :arg str crash_id: the crash id in question
     :returns: True if it's valid, False if not
     """
+    if crash_id.startswith('bp-'):
+        crash_id = crash_id[3:]
     return bool(CRASH_ID_RE.match(crash_id))
 
 class APIHelper(object):
@@ -80,7 +82,7 @@ class APIHelper(object):
     def run_query(self):
         """ Run the API query and perform error checking on the response."""
         # Make sure the crash ID is even valid.
-        if 'bp-' in self.crashid:
+        if self.crashid.startswith('bp-'):
             crashidtest = self.crashid[3:]
         else:
             crashidtest = self.crashid

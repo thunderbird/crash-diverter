@@ -2,6 +2,8 @@ import datetime
 import inspect
 import json
 import re
+import requests
+import settings
 import sys
 from urllib.parse import urlencode, parse_qs, quote_plus
 
@@ -9,6 +11,12 @@ import humanfriendly
 import isodate
 import jinja2
 import markupsafe
+
+
+def check_socorro(uuid):
+    resp = requests.get(settings.MOZ_REPORT_VIEW+uuid)
+    return resp.ok
+
 
 def cleanup_report(report):
     """Renames attributes and other modifications to attributes on a crash report."""
@@ -23,6 +31,7 @@ def cleanup_report(report):
         else:
             report['signature'] += ' | large'
     return report
+
 
 def urlencode_obj(thing):
     """Return a URL encoded string, created from a regular dict or any object

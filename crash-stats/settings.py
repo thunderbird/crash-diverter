@@ -1,5 +1,8 @@
 from flask_assets import Bundle
 
+# URL for Mozilla crash report view page
+MOZ_REPORT_VIEW = 'https://crash-stats.mozilla.org/report/index/'
+
 # Base URL to the Backtrace API.
 BT_API_URL = 'https://thunderbird.sp.backtrace.io/api'
 

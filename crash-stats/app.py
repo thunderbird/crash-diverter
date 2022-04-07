@@ -17,7 +17,7 @@ assets.url = application.static_url_path
 def index():
     crashid = request.args.get('crashid')
     if crashid:
-        if morgue_api.is_crash_id_valid(crashid[3:]):
+        if morgue_api.is_crash_id_valid(crashid):
             return redirect('/report/{crashid}'.format(crashid=crashid))
         else:
             abort(400, 'Invalid crash id specified.')
@@ -25,6 +25,11 @@ def index():
 
 @application.route("/report/<uuid>")
 def view_report(uuid):
+    # Check Socorro first.
+    if morgue_api.is_crash_id_valid(uuid):
+        if helpers.check_socorro(uuid):
+            return redirect(settings.MOZ_REPORT_VIEW+uuid)
+
     api = morgue_api.APIHelper(uuid)
     try:
         report = api.get_results()
