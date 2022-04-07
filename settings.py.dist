@@ -1,5 +1,8 @@
-# URL for Mozilla crash report service
+# URL for Mozilla crash report service, Socorro.
 mozcrash = 'https://crash-reports.mozilla.com/submit'
+
+# Whether or not to send crash reports to Socorro.
+usemoz = True
 
 # URL for Mozilla crash report view page
 mozreportview = 'https://crash-stats.mozilla.org/report/index/'
@@ -10,7 +13,9 @@ backtrace_token = ''
 # Submission URL for Backtrace
 backtrace_url = 'https://submit.backtrace.io/thunderbird/' + backtrace_token + '/minidump'
 
+# URL list to send crash reports to. If usemoz is True, then Socorro is always first.
+other_urls = [backtrace_url]
+
 #List of extra.json attributes not to submit as POST parameters.
 skip_attributes = ['ModuleSignatureInfo', 'Winsock_LSP', 'ThreadIdNameMapping',
     'Version', 'BuildID', ]
-

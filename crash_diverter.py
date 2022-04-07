@@ -5,50 +5,58 @@ import requests
 import settings
 from wsgiref.simple_server import make_server
 
-# URL for main crash submission
-target_url = settings.backtrace_url
-# URLs for other crash services
-other_urls = []
 
 class CrashDiverter:
     def copy_post_remote(req, resp, resource):
-        for url in other_urls:
+        for url in settings.other_urls:
             ans = requests.request(method='POST', url=url, data=resp.context.data, files=resp.context.files, params=req.params)
+
 
     @falcon.after(copy_post_remote)
     def on_post(self, req, resp):
-        def extract_values():
-            # Extract some things to pass as attributes for Backtrace.
-            data = json.loads(resp.context.files['extra'][1])
-            if data.get('TelemetryEnvironment', None):
-                env = json.loads(data['TelemetryEnvironment'])
-                # Get useful bits out of TelemetryEnvironment
-                data['os_name'] = env['system']['os']['name']
-                data['os_version'] = env['system']['os']['version']
-                data['cpu_arch'] = env['build']['architecture']
-
-            # Delete unwanted attributes.
-            for key in settings.skip_attributes:
-                data.pop(key, None)
-            return data
-
         # Prepare data.
         resp.context.files = {}
         form = req.get_media()
 
         for part in form:
             resp.context.files[part.name] = (part.filename, part.stream.read(), part.content_type)
-        resp.context.data = extract_values()
-        resp.context.data['crashid'] = helpers.create_crash_id()
 
-        ans = requests.request(method='POST', url=target_url, data=resp.context.data, files=resp.context.files, params=req.params)
-        resp.status = ans.status_code
+        # Parameters for the request to Socorro/Backtrace.
+        reqparams = {
+            'method':'POST',
+            'url':'',
+            'files': resp.context.files,
+            'params': req.params
+        }
+        # Thunderbird expects a plaintext response with the Crash ID.
+        crashid = ''
         resp.content_type = 'text/plain'
-        resp.text = ''
-        if resp.status == 200:
-            respdata = json.loads(ans.text)
-            if respdata.get('response') == 'ok' and respdata.get('_rxid'):
-                resp.text = 'CrashID={crashid}\n'.format(crashid=resp.context.data['crashid'])
+
+        # We are sending to Socorro.
+        if settings.usemoz:
+            reqparams['url'] = settings.mozcrash
+            ans = requests.request(**reqparams)
+            if ans.status_code == 200:
+                crashid = ans.text.split('=')[1]
+            resp.text = ans.text
+
+        # Extract JSON data for Backtrace.
+        resp.context.data = helpers.extract_values(resp.context.files['extra'][1])
+        resp.context.data['crashid'] = crashid
+
+        # We're not sending to Socorro, only Backtrace.
+        if not settings.usemoz:
+            # Without Socorro, we generate a crash ID ourselves.
+            resp.context.data['crashid'] = helpers.create_crash_id()
+            reqparams['url'] = settings.other_urls[0]
+            reqparams['data'] = resp.context.data
+            ans = requests.request(**reqparams)
+            if ans.status_code == 200:
+                    respdata = json.loads(ans.text)
+                    if respdata.get('response') == 'ok' and respdata.get('_rxid'):
+                        resp.text = 'CrashID={crashid}\n'.format(crashid=resp.context.data['crashid'])
+        # Send the response.
+        resp.status = ans.status_code
 
 
 application = falcon.App()

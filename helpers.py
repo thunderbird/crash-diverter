@@ -1,6 +1,23 @@
 import datetime
 import isodate
+import json
+import settings
 import uuid
+
+def extract_values(data):
+    # Extract some things to pass as attributes for Backtrace.
+    data = json.loads(data)
+    if data.get('TelemetryEnvironment', None):
+        env = json.loads(data['TelemetryEnvironment'])
+        # Get useful bits out of TelemetryEnvironment
+        data['os_name'] = env['system']['os']['name']
+        data['os_version'] = env['system']['os']['version']
+        data['cpu_arch'] = env['build']['architecture']
+
+    # Delete unwanted attributes.
+    for key in settings.skip_attributes:
+        data.pop(key, None)
+    return data
 
 def utc_now():
     return datetime.datetime.now(isodate.UTC)
