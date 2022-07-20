@@ -11,7 +11,7 @@ backtrace_token = ''
 backtrace_url = 'https://submit.backtrace.io/thunderbird/' + backtrace_token + '/minidump'
 
 # URL list to send crash reports to. If usemoz is True, then Socorro is always first.
-other_urls = [backtrace_url]
+other_urls = []
 
 #List of extra.json attributes not to submit as POST parameters.
 skip_attributes = ['ModuleSignatureInfo', 'Winsock_LSP', 'ThreadIdNameMapping',
